@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>頻率療癒 Frequency Healing Pro</title>
     <style>
-        /* 介面與排版完全保留 */
+        /* 介面與排版 (保留所有完美設計) */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 20px; box-sizing: border-box;
@@ -134,9 +134,8 @@
 
 <script>
     let audioCtx = null;
-    let activeOscillator = null; 
-    let activeGain = null;
-    let currentFreq = null;
+    // 使用 Map 來儲存所有正在播放的聲音引擎，達成「多軌同時播放」
+    const activeSounds = new Map(); 
     let timerTimeout = null;
     const bgAudio = document.getElementById('bg-audio');
 
@@ -149,11 +148,14 @@
         }
     }
 
-    // 啟動鎖屏音樂控制器 (Media Session API)
-    function setupLockScreen(freq, titleName) {
+    function setupLockScreen() {
         if ('mediaSession' in navigator) {
+            // 將所有正在播放的頻率名字組合起來
+            const activeTitles = Array.from(activeSounds.values()).map(s => s.titleName).join(', ');
+            const titleString = activeTitles ? activeTitles + ' 療癒中' : '台東 72 小時';
+
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: freq + ' Hz ' + titleName,
+                title: titleString,
                 artist: '台東 72 小時',
                 album: 'Frequency Healing Pro',
                 artwork: [
@@ -164,65 +166,71 @@
             navigator.mediaSession.setActionHandler('pause', function() {
                 stopAll();
             });
-            // Web Audio 在鎖屏 resume 較複雜，通常提供 pause 就足夠
         }
     }
 
     function toggleFrequency(freq, btn, titleName) {
         initAudio();
+        bgAudio.play().catch(e => console.log(e)); // 啟動背景防休眠音軌
         
-        if (currentFreq === freq) {
-            stopAll();
-            return;
+        // 檢查這個頻率是否已經在播放中
+        if (activeSounds.has(freq)) {
+            // 如果在播放，就「關閉」這個特定的頻率
+            const sound = activeSounds.get(freq);
+            sound.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+            setTimeout(() => {
+                try { sound.osc.stop(); } catch(e) {}
+            }, 300);
+            
+            // 從記錄中移除，並更新 UI
+            activeSounds.delete(freq);
+            btn.classList.remove('playing');
+            
+            // 如果全部聲音都關了，就停止背景假音軌
+            if (activeSounds.size === 0) bgAudio.pause();
+            
+        } else {
+            // 如果不在播放，就「開啟」這個新頻率（不會影響其他正在播放的）
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            // 為了防止多個聲音疊加導致爆音(Clipping)，我們將單個聲音音量稍微調低至 0.3
+            gain.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.5);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+
+            // 記錄這個新聲音
+            activeSounds.set(freq, { osc: osc, gain: gain, titleName: titleName });
+            
+            // 更新 UI
+            btn.classList.add('playing');
         }
 
-        stopAll();
-
-        // 啟動隱藏無聲音軌 (迫使 iOS 保持背景運行)
-        bgAudio.play().catch(e => console.log("Bg audio play failed:", e));
-
-        // 啟動真實頻率
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-
-        gain.gain.setValueAtTime(0, audioCtx.currentTime);
-        gain.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.5);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-
-        activeOscillator = osc;
-        activeGain = gain;
-        currentFreq = freq;
-
-        // 設定鎖屏資訊
-        setupLockScreen(freq, titleName);
-
-        btn.classList.add('playing');
+        // 更新鎖屏顯示的名字
+        setupLockScreen();
     }
 
+    // 關閉全部（按 X 掣 或 定時器觸發）
     function stopAll() {
-        // 停止隱藏無聲音軌
         bgAudio.pause();
 
-        const oldOsc = activeOscillator;
-        const oldGain = activeGain;
-
-        if (oldGain && oldOsc) {
-            oldGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+        // 走訪並關閉所有正在播放的聲音
+        activeSounds.forEach((sound, freq) => {
+            sound.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
             setTimeout(() => {
-                try { oldOsc.stop(); } catch(e) {}
+                try { sound.osc.stop(); } catch(e) {}
             }, 300);
-        }
+        });
 
-        activeOscillator = null;
-        activeGain = null;
-        currentFreq = null;
+        activeSounds.clear(); // 清空記錄
 
+        // 清除 UI 狀態
         document.querySelectorAll('.freq-card').forEach(card => card.classList.remove('playing'));
         
         if (timerTimeout) {
@@ -230,13 +238,15 @@
             timerTimeout = null;
         }
         document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
+        
+        setupLockScreen();
     }
 
     function setTimer(minutes, btn) {
         initAudio();
         
-        if (!activeOscillator) {
-            alert("請先選擇一個頻率播放，再設定時間");
+        if (activeSounds.size === 0) {
+            alert("請先選擇至少一個頻率播放，再設定時間");
             return;
         }
         
