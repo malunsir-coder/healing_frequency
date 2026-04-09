@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>頻率療癒 Frequency Healing Pro</title>
     <style>
-        /* Apple-like minimalist UI structure */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
@@ -18,15 +17,15 @@
             min-height: 100vh;
             text-align: center;
             
-            /* 👇👇 加入你上載的 Google Drive 相片做全螢幕背景 👇👇 */
+            /* 👇 背景圖設定：已換上你的 ImgBB 直接連結 👇 */
             background-image: 
-                linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), /* 薄薄的黑色遮罩，確保文字掣清晰 */
-                url('https://drive.google.com/uc?export=download&id=1MvE2rYpF9Tj9dssjRd_eentiIBn4hUeU');
-            background-size: cover; /* 鋪滿全畫面 */
-            background-position: center; /* 置中 */
+                linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), 
+                url('https://i.ibb.co/9dTk0jB/e7ae553c-887b-41e5-960a-996f3c864e81.jpg');
+            background-size: cover;
+            background-position: center;
             background-repeat: no-repeat;
-            background-attachment: fixed; /* 滑動時固定背景 */
-            background-color: #f4f1e9; /* 如果圖片載入失敗，顯示原本的底色 */
+            background-attachment: fixed;
+            background-color: #f4f1e9;
         }
 
         header {
@@ -37,11 +36,12 @@
             font-weight: 500;
             margin-bottom: 5px;
             color: #000;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.5); /* 增加文字易讀性 */
         }
 
         header p {
             font-size: 0.9rem;
-            color: #555;
+            color: #444;
             margin-top: 0;
             letter-spacing: 0.5px;
             font-weight: 300;
@@ -52,23 +52,24 @@
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             width: 100%;
-            max-width: 360px; /* iPhone size constraint */
+            max-width: 360px;
             margin: 20px 0;
         }
 
         .freq-card {
-            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色，融合背景圖 */
+            /* 較淡的半透明白色，讓背景相片隱約透出 */
+            background-color: rgba(255, 255, 255, 0.85); 
             border-radius: 20px;
             border: none;
             padding: 30px 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             transition: transform 0.2s, background-color 0.2s;
-            aspect-ratio: 1 / 1; /* 保持正方形 */
+            aspect-ratio: 1 / 1;
         }
 
         .freq-card:active {
@@ -77,7 +78,7 @@
         }
 
         .freq-title {
-            color: #007aff; /* Apple Blue for titles */
+            color: #007aff;
             font-size: 1.1rem;
             font-weight: 600;
             margin: 0 0 5px 0;
@@ -105,7 +106,6 @@
             color: #1c1c1e;
             font-size: 0.9rem;
             cursor: pointer;
-            transition: background-color 0.2s;
         }
 
         .timer-btn:active {
@@ -124,19 +124,14 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        .close-btn:active {
-            background-color: #ffe5e5;
         }
 
         footer p {
             font-size: 0.75rem;
-            color: #666;
+            color: #444;
             letter-spacing: 1px;
             margin-top: 30px;
-            font-weight: 300;
+            font-weight: 400;
         }
 
     </style>
