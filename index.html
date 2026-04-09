@@ -5,49 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>頻率療癒 Frequency Healing Pro</title>
     <style>
+        /* Apple-like minimalist UI structure */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0; padding: 20px; box-sizing: border-box;
-            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
-            min-height: 100vh; text-align: center; overflow: hidden;
-            /* 背景圖使用你的 ImgBB 直接連結 */
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+            min-height: 100vh;
+            text-align: center;
+            overflow: hidden; /* 防止滾動 */
+            
+            /* 👇 背景設定：使用你的 ImgBB 直接連結 👇 */
             background-image: url('https://i.ibb.co/9dTk0jB/e7ae553c-887b-41e5-960a-996f3c864e81.jpg');
-            background-size: cover; background-position: center; background-repeat: no-repeat;
-            background-attachment: fixed; background-color: #f4f1e9;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #f4f1e9;
         }
 
         /* 朦朧霧氣層 (Blur + Haze) */
         body::after {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); /* 為 Safari 加前景 blur */
             z-index: -1;
         }
 
-        /* 👇 右上角標籤 (已放大字體) 👇 */
-        .top-right-label {
-            position: absolute; top: 25px; right: 25px;
-            color: #ffffff; 
-            font-size: 1.15rem; /* 由 0.8rem 放大到 1.15rem */
-            font-weight: 600;
-            letter-spacing: 1px; 
-            text-shadow: 0 2px 5px rgba(0,0,0,0.6);
+        /* 確保所有內容在朦朧層上面 */
+        body > * {
+            position: relative;
+            z-index: 1;
         }
 
-        header { margin-top: 50px; position: relative; }
-        header h1 { color: #ffffff; font-weight: 500; margin-bottom: 5px; text-shadow: 0 2px 5px rgba(0,0,0,0.4); }
-        header p { color: #ffffff; opacity: 0.9; font-size: 0.9rem; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+        /* 👇👇 右上角文字 「台東 72 小時」 👇👇 */
+        .top-right-label {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            color: #ffffff; /* 白色 */
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5); /* 陰影，確保清晰 */
+        }
+
+        header {
+            margin-top: 50px;
+        }
+
+        header h1 {
+            font-weight: 500;
+            margin-bottom: 5px;
+            /* 👇標題白色字，帶陰影 👇 */
+            color: #ffffff;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.4);
+        }
+
+        header p {
+            font-size: 0.9rem;
+            /* 👇 白色清晰字 👇 */
+            color: #ffffff;
+            opacity: 0.8;
+            margin-top: 0;
+            letter-spacing: 0.5px;
+            font-weight: 300;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
 
         .frequency-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
-            width: 100%; max-width: 360px; margin: 20px 0; position: relative;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 360px;
+            margin: 20px 0;
         }
 
         .freq-card {
-            background-color: rgba(255, 255, 255, 0.75); border-radius: 20px; border: none;
-            padding: 30px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; transition: all 0.2s; aspect-ratio: 1 / 1;
+            background-color: rgba(255, 255, 255, 0.75); 
+            border-radius: 20px;
+            border: none;
+            padding: 30px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s, box-shadow 0.2s;
+            aspect-ratio: 1 / 1;
         }
 
         /* 播放中狀態 UI */
@@ -57,24 +111,66 @@
             box-shadow: 0 0 20px rgba(0, 122, 255, 0.5);
         }
 
-        .freq-title { color: #007aff; font-size: 1.1rem; font-weight: 600; margin-bottom: 5px; }
-        .freq-desc { color: #555; font-size: 0.8rem; font-weight: 300; }
-
-        .timer-controls { display: flex; align-items: center; gap: 10px; margin-top: 20px; position: relative; }
-        .timer-btn {
-            background-color: rgba(255, 255, 255, 0.85); border: 1px solid #c7c7cc;
-            border-radius: 20px; padding: 8px 18px; color: #1c1c1e; font-size: 0.9rem; cursor: pointer;
+        .freq-title {
+            color: #007aff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 5px 0;
         }
-        .timer-btn.active { background-color: #007aff; color: white; border-color: #007aff; }
+
+        .freq-desc {
+            color: #555;
+            font-size: 0.8rem;
+            margin: 0;
+            font-weight: 300;
+        }
+
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .timer-btn {
+            background-color: rgba(255, 255, 255, 0.85);
+            border: 1px solid #c7c7cc;
+            border-radius: 20px;
+            padding: 8px 18px;
+            color: #1c1c1e;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .timer-btn.active {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
 
         .close-btn {
-            background-color: white; border: 1px solid #ff3b30; border-radius: 50%;
-            width: 36px; height: 36px; color: #ff3b30; font-size: 1.2rem;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            background-color: white;
+            border: 1px solid #ff3b30;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: #ff3b30;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
         }
 
-        footer { margin-top: 30px; position: relative; }
-        footer p { font-size: 0.75rem; color: #333; letter-spacing: 1px; font-weight: 500; }
+        footer p {
+            font-size: 0.75rem;
+            color: #444;
+            letter-spacing: 1px;
+            margin-top: 30px;
+            font-weight: 400;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.4);
+        }
 
     </style>
 </head>
@@ -138,60 +234,102 @@
 </footer>
 
 <script>
+    // 👉 [要求 2修正] 音效引擎核心代碼 👇
     let audioCtx = null;
     let oscillator = null;
     let gainNode = null;
     let currentFreq = null;
     let timerTimeout = null;
 
+    // 初始化 Audio Context (iOS 必須在用戶點擊後啟動)
     function initAudio() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
     }
 
-    function toggleFrequency(freq, btn) {
+    // ⭐ 核心修正：強制 Wake Lock 音頻 ⭐
+    function resumeAudio() {
         initAudio();
+        // 如果 AudioContext 係休眠狀態 (被 Safari 暫停)，強制喚醒
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    function toggleFrequency(freq, btn) {
+        resumeAudio(); // 先喚醒
+        
+        // 如果正在播放同一個頻率，就停止
         if (currentFreq === freq) {
             stopAll();
             return;
         }
+
+        // 停止之前的聲音
         stopAll();
 
+        // ⭐ 啟動新聲音 ⭐
         oscillator = audioCtx.createOscillator();
         gainNode = audioCtx.createGain();
 
+        // 使用正弦波 sine (最純淨的頻率)
         oscillator.type = 'sine';
         oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
+        // 漸強效果 (避免爆音)
         gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.5);
+        // 設定音量：0.6 (適中偏大，較容易聽到)
+        gainNode.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.5); 
 
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
 
         oscillator.start();
         currentFreq = freq;
+
+        // 更新 UI 狀態 (加陰影/放大)
         btn.classList.add('playing');
     }
 
     function stopAll() {
+        // 停止聲音
         if (gainNode) {
+            // 漸弱效果
             gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
-            setTimeout(() => { if (oscillator) oscillator.stop(); }, 300);
+            setTimeout(() => {
+                if (oscillator) oscillator.stop();
+            }, 300);
         }
+
+        // 清除 UI 狀態
         document.querySelectorAll('.freq-card').forEach(card => card.classList.remove('playing'));
         currentFreq = null;
-        if (timerTimeout) { clearTimeout(timerTimeout); timerTimeout = null; }
+
+        // 清除定時器
+        if (timerTimeout) {
+            clearTimeout(timerTimeout);
+            timerTimeout = null;
+        }
         document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
     }
 
     function setTimer(minutes, btn) {
-        stopAll();
+        resumeAudio(); // 用定時器也喚醒 Audio
+        
+        stopAll(); // 重新設定定時器時先重置
+        
+        // 更新定時器 UI
         document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        alert(`已設定 ${minutes} 分鐘定時`);
-        timerTimeout = setTimeout(() => { stopAll(); }, minutes * 60 * 1000);
+
+        alert(`已設定 ${minutes} 分鐘定時關閉`);
+
+        // 設定 setTimeout
+        timerTimeout = setTimeout(() => {
+            stopAll();
+            alert("定時時間到，聲音已關閉");
+        }, minutes * 60 * 1000);
     }
 </script>
 
