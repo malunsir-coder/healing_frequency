@@ -3,213 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>頻率療癒</title>
+    <title>頻率療癒 Frequency Healing Pro</title>
     <style>
-        :root {
-            --bg-color: #f4f1ea; 
-            --text-primary: #5a5047; 
-            --text-secondary: #a39a92; 
-            --btn-bg: #ffffff; 
-            --btn-active: #daddd8; 
-            --timer-active: #a8dadc;
-            --shadow: 0 4px 12px rgba(90, 80, 71, 0.08); 
-        }
-
+        /* Apple-like minimalist UI structure */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0;
             padding: 20px;
+            box-sizing: border-box;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-around;
             min-height: 100vh;
-            touch-action: manipulation; 
+            text-align: center;
+            
+            /* 👇👇 加入你上載的 Google Drive 相片做全螢幕背景 👇👇 */
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), /* 薄薄的黑色遮罩，確保文字掣清晰 */
+                url('https://drive.google.com/uc?export=download&id=1MvE2rYpF9Tj9dssjRd_eentiIBn4hUeU');
+            background-size: cover; /* 鋪滿全畫面 */
+            background-position: center; /* 置中 */
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* 滑動時固定背景 */
+            background-color: #f4f1e9; /* 如果圖片載入失敗，顯示原本的底色 */
         }
 
-        header { margin-bottom: 30px; text-align: center; }
-        h1 { font-weight: 300; letter-spacing: 0.2em; font-size: 1.4rem; margin: 0; }
-        .subtitle { font-size: 0.8rem; color: var(--text-secondary); letter-spacing: 0.1em; margin-top: 10px; }
+        header {
+            margin-top: 20px;
+        }
 
-        /* 九宮格 */
-        .grid-container {
+        header h1 {
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #000;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 0;
+            letter-spacing: 0.5px;
+            font-weight: 300;
+        }
+
+        .frequency-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
             width: 100%;
-            max-width: 380px;
-            aspect-ratio: 1 / 1; 
+            max-width: 360px; /* iPhone size constraint */
+            margin: 20px 0;
         }
 
-        .btn {
-            background: var(--btn-bg);
+        .freq-card {
+            background-color: rgba(255, 255, 255, 0.9); /* 半透明白色，融合背景圖 */
+            border-radius: 20px;
             border: none;
-            border-radius: 16px;
+            padding: 30px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            box-shadow: var(--shadow);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             cursor: pointer;
-            padding: 10px;
-            -webkit-user-select: none; user-select: none;
+            transition: transform 0.2s, background-color 0.2s;
+            aspect-ratio: 1 / 1; /* 保持正方形 */
         }
-        .btn:active { transform: scale(0.96); }
-        .btn.playing { background-color: var(--btn-active); box-shadow: inset 0 2px 6px rgba(0,0,0,0.05); }
-        .label { font-size: 1rem; font-weight: 400; margin-bottom: 4px; }
-        .hz { font-size: 0.75rem; color: var(--text-secondary); font-weight: 300; }
 
-        /* 定時器區域 */
-        .timer-section {
-            margin-top: 40px;
-            display: flex;
-            gap: 15px;
-            justify-content: center;
+        .freq-card:active {
+            transform: scale(0.95);
+            background-color: rgba(255, 255, 255, 0.7);
         }
-        .timer-btn {
-            background: transparent;
-            border: 1px solid var(--text-secondary);
-            color: var(--text-secondary);
-            padding: 8px 16px;
-            border-radius: 20px;
+
+        .freq-title {
+            color: #007aff; /* Apple Blue for titles */
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+        }
+
+        .freq-desc {
+            color: #555;
             font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .timer-btn.active {
-            background-color: var(--text-primary);
-            color: white;
-            border-color: var(--text-primary);
-        }
-        
-        .status-text {
-            margin-top: 20px;
-            font-size: 0.75rem;
-            color: var(--text-secondary);
-            height: 1em; /* 預留空間 */
+            margin: 0;
+            font-weight: 300;
         }
 
-        footer { margin-top: 40px; font-size: 0.7rem; color: var(--text-secondary); opacity: 0.6; letter-spacing: 0.1em; }
+        .timer-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .timer-btn {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid #c7c7cc;
+            border-radius: 20px;
+            padding: 8px 18px;
+            color: #1c1c1e;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .timer-btn:active {
+            background-color: #e5e5ea;
+        }
+
+        .close-btn {
+            background-color: white;
+            border: 1px solid #ff3b30;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            color: #ff3b30;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .close-btn:active {
+            background-color: #ffe5e5;
+        }
+
+        footer p {
+            font-size: 0.75rem;
+            color: #666;
+            letter-spacing: 1px;
+            margin-top: 30px;
+            font-weight: 300;
+        }
+
     </style>
 </head>
 <body>
 
 <header>
     <h1>頻率療癒</h1>
-    <div class="subtitle">Frequency Healing</div>
+    <p>Frequency Healing</p>
 </header>
 
-<main class="grid-container">
-    <button class="btn" onclick="toggleSound(432, this)"><span class="label">睡眠</span><span class="hz">432 Hz</span></button>
-    <button class="btn" onclick="toggleSound(741, this)"><span class="label">溫習</span><span class="hz">741 Hz</span></button>
-    <button class="btn" onclick="toggleSound(147, this)"><span class="label">止痛</span><span class="hz">147 Hz</span></button>
-    
-    <button class="btn" onclick="toggleSound(528, this)"><span class="label">正面</span><span class="hz">528 Hz</span></button>
-    <button class="btn" onclick="toggleSound(396, this)"><span class="label">安全</span><span class="hz">396 Hz</span></button>
-    <button class="btn" onclick="toggleSound(639, this)"><span class="label">幸福</span><span class="hz">639 Hz</span></button>
-    
-    <button class="btn" onclick="toggleSound(852, this)"><span class="label">平靜</span><span class="hz">852 Hz</span></button>
-    <button class="btn" onclick="toggleSound(285, this)"><span class="label">修復</span><span class="hz">285 Hz</span></button>
-    <button class="btn" onclick="toggleSound(963, this)"><span class="label">靈性</span><span class="hz">963 Hz</span></button>
-</main>
+<section class="frequency-grid">
+    <button class="freq-card">
+        <h2 class="freq-title">睡眠</h2>
+        <p class="freq-desc">432 Hz</p>
+    </button>
+    <button class="freq-card">
+        <h2 class="freq-title">溫習</h2>
+        <p class="freq-desc">741 Hz</p>
+    </button>
+    <button class="freq-card">
+        <h2 class="freq-title">止痛</h2>
+        <p class="freq-desc">147 Hz</p>
+    </button>
+    <button class="freq-card">
+        <h2 class="freq-title">正面</h2>
+        <p class="freq-desc">528 Hz</p>
+    </button>
+    <button class="freq-card">
+        <h2 class="freq-title">安全</h2>
+        <p class="freq-desc">396 Hz</p>
+    </button>
+    <button class="freq-card">
+        <h2 class="freq-title">幸福</h2>
+        <p class="freq-desc">639 Hz</p>
+    </button>
+    <button class="freq-card">
+        <h2 class="freq-title">平靜</h2>
+        <p class="freq-desc">852 Hz</p>
+    </button>
+    <button class="freq-card">
+        <h2 class="freq-title">修復</h2>
+        <p class="freq-desc">285 Hz</p>
+    </button>
+    <button class="freq-card">
+        <h2 class="freq-title">靈性</h2>
+        <p class="freq-desc">963 Hz</p>
+    </button>
+</section>
 
-<div class="timer-section">
-    <button class="timer-btn" onclick="setTimer(15, this)">15 min</button>
-    <button class="timer-btn" onclick="setTimer(30, this)">30 min</button>
-    <button class="timer-btn" onclick="setTimer(60, this)">60 min</button>
-    <button class="timer-btn" onclick="cancelTimer(this)">❌</button>
-</div>
-<div class="status-text" id="statusMsg"></div>
+<section class="timer-controls">
+    <button class="timer-btn">15 min</button>
+    <button class="timer-btn">30 min</button>
+    <button class="timer-btn">60 min</button>
+    <button class="close-btn">×</button>
+</section>
 
-<footer>MINIMALIST SOUNDS</footer>
+<footer>
+    <p>MINIMALIST SOUNDS</p>
+</footer>
 
-<script>
-    let audioCtx = null;
-    let currentOscillator = null;
-    let currentGainNode = null;
-    let currentBtn = null;
-    let timerId = null;
-
-    function toggleSound(hz, btn) {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        if (currentOscillator) {
-            stopSoundSmoothly();
-            currentBtn.classList.remove('playing');
-            if (currentBtn === btn) {
-                currentOscillator = null;
-                currentBtn = null;
-                return;
-            }
-        }
-        playFrequency(hz);
-        btn.classList.add('playing');
-        currentBtn = btn;
-    }
-
-    function playFrequency(hz) {
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(hz, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.15, audioCtx.currentTime + 0.5); 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.start();
-        currentOscillator = oscillator;
-        currentGainNode = gainNode;
-    }
-
-    function stopSoundSmoothly() {
-        if (currentGainNode && currentOscillator) {
-            const now = audioCtx.currentTime;
-            currentGainNode.gain.cancelScheduledValues(now);
-            currentGainNode.gain.setValueAtTime(currentGainNode.gain.value, now);
-            // 3秒鐘慢慢淡出，瞓覺一流
-            currentGainNode.gain.linearRampToValueAtTime(0, now + 3);
-            
-            let oscToStop = currentOscillator;
-            setTimeout(() => {
-                oscToStop.stop();
-                oscToStop.disconnect();
-            }, 3100);
-        }
-    }
-
-    // 定時器邏輯
-    function setTimer(minutes, btn) {
-        // 清除舊定時
-        if (timerId) clearTimeout(timerId);
-        
-        // 更新按鈕樣式
-        document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
-        if(btn) btn.classList.add('active');
-
-        // 顯示狀態
-        document.getElementById('statusMsg').innerText = `將於 ${minutes} 分鐘後關閉`;
-
-        // 啟動倒數
-        timerId = setTimeout(() => {
-            if (currentOscillator) {
-                stopSoundSmoothly();
-                if (currentBtn) currentBtn.classList.remove('playing');
-                currentBtn = null;
-                currentOscillator = null;
-            }
-            document.getElementById('statusMsg').innerText = "已自動關閉";
-            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
-        }, minutes * 60 * 1000);
-    }
-
-    function cancelTimer(btn) {
-        if (timerId) clearTimeout(timerId);
-        document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('statusMsg').innerText = "";
-    }
-</script>
 </body>
 </html>
