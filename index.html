@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>頻率療癒 Frequency Healing Pro</title>
     <style>
-        /* 介面與排版 (保留所有完美設計) */
+        /* 介面與排版完全保留 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             margin: 0; padding: 20px; box-sizing: border-box;
@@ -25,7 +25,6 @@
 
         body > * { position: relative; z-index: 1; }
 
-        /* 右上角大字 */
         .top-right-label {
             position: absolute; top: 25px; right: 25px;
             color: #ffffff; font-size: 1.15rem; font-weight: 600;
@@ -74,6 +73,8 @@
 </head>
 <body>
 
+<audio id="bg-audio" loop playsinline src="data:audio/mpeg;base64,//OExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq/zRMAAAABAAABpAAA//OExEQAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"></audio>
+
 <div class="top-right-label">台東 72 小時</div>
 
 <header>
@@ -82,39 +83,39 @@
 </header>
 
 <section class="frequency-grid">
-    <button class="freq-card" onclick="toggleFrequency(432, this)">
+    <button class="freq-card" onclick="toggleFrequency(432, this, '睡眠')">
         <h2 class="freq-title">睡眠</h2>
         <p class="freq-desc">432 Hz</p>
     </button>
-    <button class="freq-card" onclick="toggleFrequency(741, this)">
+    <button class="freq-card" onclick="toggleFrequency(741, this, '溫習')">
         <h2 class="freq-title">溫習</h2>
         <p class="freq-desc">741 Hz</p>
     </button>
-    <button class="freq-card" onclick="toggleFrequency(147, this)">
+    <button class="freq-card" onclick="toggleFrequency(147, this, '止痛')">
         <h2 class="freq-title">止痛</h2>
         <p class="freq-desc">147 Hz</p>
     </button>
-    <button class="freq-card" onclick="toggleFrequency(528, this)">
+    <button class="freq-card" onclick="toggleFrequency(528, this, '正面')">
         <h2 class="freq-title">正面</h2>
         <p class="freq-desc">528 Hz</p>
     </button>
-    <button class="freq-card" onclick="toggleFrequency(396, this)">
+    <button class="freq-card" onclick="toggleFrequency(396, this, '安全')">
         <h2 class="freq-title">安全</h2>
         <p class="freq-desc">396 Hz</p>
     </button>
-    <button class="freq-card" onclick="toggleFrequency(639, this)">
+    <button class="freq-card" onclick="toggleFrequency(639, this, '幸福')">
         <h2 class="freq-title">幸福</h2>
         <p class="freq-desc">639 Hz</p>
     </button>
-    <button class="freq-card" onclick="toggleFrequency(852, this)">
+    <button class="freq-card" onclick="toggleFrequency(852, this, '平靜')">
         <h2 class="freq-title">平靜</h2>
         <p class="freq-desc">852 Hz</p>
     </button>
-    <button class="freq-card" onclick="toggleFrequency(285, this)">
+    <button class="freq-card" onclick="toggleFrequency(285, this, '修復')">
         <h2 class="freq-title">修復</h2>
         <p class="freq-desc">285 Hz</p>
     </button>
-    <button class="freq-card" onclick="toggleFrequency(963, this)">
+    <button class="freq-card" onclick="toggleFrequency(963, this, '靈性')">
         <h2 class="freq-title">靈性</h2>
         <p class="freq-desc">963 Hz</p>
     </button>
@@ -132,12 +133,12 @@
 </footer>
 
 <script>
-    // ⭐ 真．修復版 JavaScript (解決 0.3 秒斷聲 Bug) ⭐
     let audioCtx = null;
-    let activeOscillator = null; // 獨立記錄正在發聲的引擎
+    let activeOscillator = null; 
     let activeGain = null;
     let currentFreq = null;
     let timerTimeout = null;
+    const bgAudio = document.getElementById('bg-audio');
 
     function initAudio() {
         if (!audioCtx) {
@@ -148,26 +149,45 @@
         }
     }
 
-    function toggleFrequency(freq, btn) {
+    // 啟動鎖屏音樂控制器 (Media Session API)
+    function setupLockScreen(freq, titleName) {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: freq + ' Hz ' + titleName,
+                artist: '台東 72 小時',
+                album: 'Frequency Healing Pro',
+                artwork: [
+                    { src: 'https://i.ibb.co/9dTk0jB/e7ae553c-887b-41e5-960a-996f3c864e81.jpg', sizes: '512x512', type: 'image/jpeg' }
+                ]
+            });
+
+            navigator.mediaSession.setActionHandler('pause', function() {
+                stopAll();
+            });
+            // Web Audio 在鎖屏 resume 較複雜，通常提供 pause 就足夠
+        }
+    }
+
+    function toggleFrequency(freq, btn, titleName) {
         initAudio();
         
-        // 如果點擊同一個正在播放的頻率，就停止
         if (currentFreq === freq) {
             stopAll();
             return;
         }
 
-        // 停止舊聲音 (交給 stopAll 處理，它不會干擾我們接下來創建的新聲音)
         stopAll();
 
-        // 👉 建立全新的聲音引擎
+        // 啟動隱藏無聲音軌 (迫使 iOS 保持背景運行)
+        bgAudio.play().catch(e => console.log("Bg audio play failed:", e));
+
+        // 啟動真實頻率
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
         osc.type = 'sine';
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
 
-        // 聲音漸入，防止爆音
         gain.gain.setValueAtTime(0, audioCtx.currentTime);
         gain.gain.linearRampToValueAtTime(0.6, audioCtx.currentTime + 0.5);
 
@@ -175,34 +195,34 @@
         gain.connect(audioCtx.destination);
         osc.start();
 
-        // 👉 將新建立的引擎，登記為「當前活躍」
         activeOscillator = osc;
         activeGain = gain;
         currentFreq = freq;
 
-        // UI 狀態更新
+        // 設定鎖屏資訊
+        setupLockScreen(freq, titleName);
+
         btn.classList.add('playing');
     }
 
     function stopAll() {
-        // 👉 關鍵修正：先將當前的引擎抽離出來，避免被後續動作覆蓋
+        // 停止隱藏無聲音軌
+        bgAudio.pause();
+
         const oldOsc = activeOscillator;
         const oldGain = activeGain;
 
         if (oldGain && oldOsc) {
-            // 只對舊引擎執行漸弱和停止
             oldGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
             setTimeout(() => {
                 try { oldOsc.stop(); } catch(e) {}
             }, 300);
         }
 
-        // 清空活躍名單
         activeOscillator = null;
         activeGain = null;
         currentFreq = null;
 
-        // 清除 UI 狀態
         document.querySelectorAll('.freq-card').forEach(card => card.classList.remove('playing'));
         
         if (timerTimeout) {
@@ -215,7 +235,6 @@
     function setTimer(minutes, btn) {
         initAudio();
         
-        // 如果沒有聲音在播，不用設定定時器
         if (!activeOscillator) {
             alert("請先選擇一個頻率播放，再設定時間");
             return;
@@ -226,7 +245,6 @@
 
         if (timerTimeout) clearTimeout(timerTimeout);
         
-        // 安靜地設定定時器 (移除煩人的 Alert 彈窗，避免干擾音效)
         timerTimeout = setTimeout(() => {
             stopAll();
         }, minutes * 60 * 1000);
