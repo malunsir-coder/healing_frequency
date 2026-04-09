@@ -3,137 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>頻率療癒 Frequency Healing Pro</title>
+    <title>頻率療癒 Frequency Healing</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-around;
-            min-height: 100vh;
-            text-align: center;
-            
-            /* 👇 背景圖設定：已換上你的 ImgBB 直接連結 👇 */
-            background-image: 
-                linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), 
-                url('https://i.ibb.co/9dTk0jB/e7ae553c-887b-41e5-960a-996f3c864e81.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+            margin: 0; padding: 20px; box-sizing: border-box;
+            display: flex; flex-direction: column; align-items: center; justify-content: space-around;
+            min-height: 100vh; text-align: center;
+            background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.1)), url('https://i.ibb.co/9dTk0jB/e7ae553c-887b-41e5-960a-996f3c864e81.jpg');
+            background-size: cover; background-position: center; background-repeat: no-repeat; background-attachment: fixed;
             background-color: #f4f1e9;
         }
 
-        header {
-            margin-top: 20px;
-        }
-
-        header h1 {
-            font-weight: 500;
-            margin-bottom: 5px;
-            color: #000;
-            text-shadow: 0 1px 2px rgba(255,255,255,0.5); /* 增加文字易讀性 */
-        }
-
-        header p {
-            font-size: 0.9rem;
-            color: #444;
-            margin-top: 0;
-            letter-spacing: 0.5px;
-            font-weight: 300;
-        }
+        header h1 { font-weight: 500; margin-bottom: 5px; color: #000; text-shadow: 0 1px 2px rgba(255,255,255,0.5); }
+        header p { font-size: 0.9rem; color: #444; margin-top: 0; letter-spacing: 0.5px; font-weight: 300; }
 
         .frequency-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            width: 100%;
-            max-width: 360px;
-            margin: 20px 0;
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;
+            width: 100%; max-width: 360px; margin: 20px 0;
         }
 
         .freq-card {
-            /* 較淡的半透明白色，讓背景相片隱約透出 */
-            background-color: rgba(255, 255, 255, 0.85); 
-            border-radius: 20px;
-            border: none;
-            padding: 30px 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: transform 0.2s, background-color 0.2s;
-            aspect-ratio: 1 / 1;
+            background-color: rgba(255, 255, 255, 0.85); border-radius: 20px; border: none;
+            padding: 30px 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s; aspect-ratio: 1 / 1;
         }
 
-        .freq-card:active {
-            transform: scale(0.95);
-            background-color: rgba(255, 255, 255, 0.7);
-        }
+        .freq-card.active { background-color: #007aff; transform: scale(0.98); }
+        .freq-card.active .freq-title, .freq-card.active .freq-desc { color: white; }
 
-        .freq-title {
-            color: #007aff;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin: 0 0 5px 0;
-        }
+        .freq-title { color: #007aff; font-size: 1.1rem; font-weight: 600; margin: 0 0 5px 0; pointer-events: none; }
+        .freq-desc { color: #555; font-size: 0.8rem; margin: 0; font-weight: 300; pointer-events: none; }
 
-        .freq-desc {
-            color: #555;
-            font-size: 0.8rem;
-            margin: 0;
-            font-weight: 300;
-        }
-
-        .timer-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
+        .timer-controls { display: flex; align-items: center; gap: 10px; margin-top: 20px; }
         .timer-btn {
-            background-color: rgba(255, 255, 255, 0.8);
-            border: 1px solid #c7c7cc;
-            border-radius: 20px;
-            padding: 8px 18px;
-            color: #1c1c1e;
-            font-size: 0.9rem;
-            cursor: pointer;
+            background-color: rgba(255, 255, 255, 0.8); border: 1px solid #c7c7cc;
+            border-radius: 20px; padding: 8px 18px; color: #1c1c1e; font-size: 0.9rem; cursor: pointer;
         }
-
-        .timer-btn:active {
-            background-color: #e5e5ea;
-        }
+        .timer-btn.selected { background-color: #007aff; color: white; border-color: #007aff; }
 
         .close-btn {
-            background-color: white;
-            border: 1px solid #ff3b30;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            color: #ff3b30;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            background-color: white; border: 1px solid #ff3b30; border-radius: 50%;
+            width: 36px; height: 36px; color: #ff3b30; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
 
-        footer p {
-            font-size: 0.75rem;
-            color: #444;
-            letter-spacing: 1px;
-            margin-top: 30px;
-            font-weight: 400;
-        }
-
+        footer p { font-size: 0.75rem; color: #444; letter-spacing: 1px; margin-top: 30px; font-weight: 400; }
     </style>
 </head>
 <body>
@@ -144,54 +60,130 @@
 </header>
 
 <section class="frequency-grid">
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(432, this)">
         <h2 class="freq-title">睡眠</h2>
         <p class="freq-desc">432 Hz</p>
     </button>
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(741, this)">
         <h2 class="freq-title">溫習</h2>
         <p class="freq-desc">741 Hz</p>
     </button>
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(147, this)">
         <h2 class="freq-title">止痛</h2>
         <p class="freq-desc">147 Hz</p>
     </button>
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(528, this)">
         <h2 class="freq-title">正面</h2>
         <p class="freq-desc">528 Hz</p>
     </button>
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(396, this)">
         <h2 class="freq-title">安全</h2>
         <p class="freq-desc">396 Hz</p>
     </button>
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(639, this)">
         <h2 class="freq-title">幸福</h2>
         <p class="freq-desc">639 Hz</p>
     </button>
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(852, this)">
         <h2 class="freq-title">平靜</h2>
         <p class="freq-desc">852 Hz</p>
     </button>
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(285, this)">
         <h2 class="freq-title">修復</h2>
         <p class="freq-desc">285 Hz</p>
     </button>
-    <button class="freq-card">
+    <button class="freq-card" onclick="toggleFreq(963, this)">
         <h2 class="freq-title">靈性</h2>
         <p class="freq-desc">963 Hz</p>
     </button>
 </section>
 
 <section class="timer-controls">
-    <button class="timer-btn">15 min</button>
-    <button class="timer-btn">30 min</button>
-    <button class="timer-btn">60 min</button>
-    <button class="close-btn">×</button>
+    <button class="timer-btn" onclick="setTimer(15, this)">15 min</button>
+    <button class="timer-btn" onclick="setTimer(30, this)">30 min</button>
+    <button class="timer-btn" onclick="setTimer(60, this)">60 min</button>
+    <button class="close-btn" onclick="stopAll()">×</button>
 </section>
 
 <footer>
     <p>MINIMALIST SOUNDS</p>
 </footer>
+
+<script>
+    let audioCtx;
+    let oscillator;
+    let gainNode;
+    let currentFreq = null;
+    let timerTimeout;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    function toggleFreq(hz, element) {
+        initAudio();
+        
+        // 如果撳緊同一個頻率，就熄咗佢
+        if (currentFreq === hz) {
+            stopAll();
+            return;
+        }
+
+        stopAll(false); // 先熄咗舊嗰個，但唔重置 UI
+        
+        // UI 更新
+        element.classList.add('active');
+        currentFreq = hz;
+
+        // 產生聲音
+        oscillator = audioCtx.createOscillator();
+        gainNode = audioCtx.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(hz, audioCtx.currentTime);
+
+        // 漸入效果
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.5);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        oscillator.start();
+    }
+
+    function setTimer(minutes, element) {
+        // 重置所有 timer 掣 UI
+        document.querySelectorAll('.timer-btn').forEach(btn => btn.classList.remove('selected'));
+        element.classList.add('selected');
+
+        if (timerTimeout) clearTimeout(timerTimeout);
+        
+        timerTimeout = setTimeout(() => {
+            stopAll();
+            alert(minutes + ' 分鐘定時完畢，聲音已停止。');
+        }, minutes * 60 * 1000);
+    }
+
+    function stopAll(resetUI = true) {
+        if (gainNode) {
+            // 漸出效果，避免「啪」一聲
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+            setTimeout(() => {
+                if (oscillator) oscillator.stop();
+            }, 500);
+        }
+
+        if (resetUI) {
+            document.querySelectorAll('.freq-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.timer-btn').forEach(btn => btn.classList.remove('selected'));
+            if (timerTimeout) clearTimeout(timerTimeout);
+            currentFreq = null;
+        }
+    }
+</script>
 
 </body>
 </html>
